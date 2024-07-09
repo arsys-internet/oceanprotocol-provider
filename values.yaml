@@ -1,0 +1,96 @@
+# Default values for oceanprotocol-provider.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+keys:
+  publicProviders:
+  privateProviders:
+  publicOperator:
+  privateOperator:
+
+ipfs:
+  replicaCount:
+  image:
+    repository: ""
+    tag: ""
+    digest: ""
+    pullPolicy: ""
+  storage:
+    classname: ""
+    access: ""
+    size: ""
+  ingress:
+    enabled: true
+    annotations: {}
+    tls: false
+    classname: ""
+    host: ""
+    secretName: ""
+
+postgres:
+  replicaCount:
+  image:
+    repository: ""
+    tag: ""
+    digest: ""
+    pullPolicy: ""
+  db:
+    name: ""
+    user: ""
+    pass: ""
+    host: ""
+    port: ""
+    path: ""
+    mountPath: ""
+  storage:
+    classname: ""
+    access: ""
+    size: ""
+
+provider:
+  replicaCount:
+  image:
+    repository: ""
+    tag: ""
+    digest: ""
+    pullPolicy: ""
+  ipfsGateway: ""
+  operatorAPI: ""
+  token: ""
+  ingress:
+    enabled: true
+    annotations: {}
+    tls: false
+    classname: ""
+    host: ""
+    secretName: ""
+
+operator-engine:
+  replicaCount:
+  image:
+    repository: ""
+    tag: ""
+    digest: ""
+    pullPolicy: ""
+  description: ""
+  maxJobs: ""
+  nCPU: ""
+  ramGB: ""
+  nGPU: ""
+  diskGB: ""
+  storageClassname: ""
+  maxJobDuration: ""
+  priceMinute: ""
+  ipfsOutputPrefix: ""
+  ipfsAdminLogsPrefix: ""
+  operatorPrivateKey: ""
+  confContainer: ""
+  pubContainer: ""
+
+operator-api:
+  replicaCount:
+  image:
+    repository: ""
+    tag: ""
+    digest: ""
+    pullPolicy: ""

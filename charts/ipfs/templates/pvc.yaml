@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Release.Name }}-ipfs
+  namespace: {{ .Release.Namespace }}
+spec:
+  {{- if .Values.storage.classname }}
+  storageClassName: {{ .Values.storage.classname | quote }}
+  {{- end }}
+  accessModes:
+    - {{ .Values.storage.access | default "ReadWriteOnce" }}
+  resources:
+    requests:
+      storage: {{ .Values.storage.size | default "1Gi" | quote}}

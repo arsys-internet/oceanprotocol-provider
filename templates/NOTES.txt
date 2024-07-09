@@ -1,0 +1,16 @@
+Thank you for installing {{ .Chart.Name }}.
+
+The published services for {{ .Release.Name }} are:
+
+* IPFS: http{{ if $.Values.ipfs.ingress.tls }}s{{ end }}://{{ .Values.ipfs.ingress.host }}/
+* Provider: http{{ if $.Values.provider.ingress.tls }}s{{ end }}://{{ .Values.provider.ingress.host }}/
+
+Now wait until everything is `Running` to initialise the PostgreSQL database with the following command:
+
+    $ kubectl run --namespace {{ .Release.Namespace }} --attach --rm --restart=Never \
+        --image curlimages/curl pgsqlinit -- \
+        curl -X POST -H "accept: application/json" \
+            -H "Admin: {{ .Values.postgres.db.user | default "postgresadmin" }}" \
+            "http://{{ .Release.Name }}-operator-api.{{ .Release.Namespace }}:8050/api/v1/operator/pgsqlinit" 
+
+And then you can list the computational environments available using this URL: http{{ if $.Values.provider.ingress.tls }}s{{ end }}://{{ .Values.provider.ingress.host }}/api/services/computeEnvironments

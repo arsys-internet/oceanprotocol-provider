@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-postgres
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.replicaCount | default 1 }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-postgres
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-postgres
+    spec:
+      containers:
+        - name: {{ .Release.Name }}-postgres
+          image: {{ .Values.image.repository | default "postgres" }}:{{ .Values.image.tag | default "10.4" }}{{ if .Values.image.digest }}@{{ .Values.image.digest }}{{ end }}
+          imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" | quote }}
+          ports:
+            - containerPort: {{ .Values.db.port | default "5432" }}
+          envFrom:
+            - secretRef:
+                name: {{ .Release.Name }}-postgres
+          volumeMounts:
+            - name: postgresdb
+              mountPath: {{ .Values.db.mountPath | default "/var/lib/postgresql/data" }}
+      volumes:
+        - name: postgresdb
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-postgres

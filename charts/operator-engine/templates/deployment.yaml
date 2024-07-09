@@ -1,0 +1,102 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: {{ .Release.Name }}-operator-engine
+  name: {{ .Release.Name }}-operator-engine
+  namespace: {{ .Release.Namespace }}
+spec:
+  progressDeadlineSeconds: 600
+  replicas: {{ .Values.replicaCount | default 1 }}
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-operator-engine
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-operator-engine
+    spec:
+      containers:
+      - name: {{ .Release.Name }}-operator-engine
+        image: {{ .Values.image.repository | default "oceanprotocol/operator-engine" }}:{{ .Values.image.tag | default "v4main" }}{{ if .Values.image.digest }}@{{ .Values.image.digest }}{{ end }}
+        imagePullPolicy: {{ .Values.image.pullPolicy | default "Always" | quote }}
+        env:
+        - name: description
+          value: {{ .Values.description | default "My Data Room" | quote }}
+        - name: maxJobs
+          value: {{ .Values.maxJobs | default "1" | quote }}
+        - name: nCPU
+          value: {{ .Values.nCPU | default "2" | quote }}
+        - name: ramGB
+          value: {{ .Values.ramGB | default "4" | quote }}
+        - name: nGPU
+          value: {{ .Values.nGPU | default "0" | quote }}
+        - name: diskGB
+          value: {{ .Values.diskGB | default "1" | quote }}
+        - name: STORAGE_CLASS
+          value: {{ .Values.storageClassname | required "It's required to specify an storageClassname to use the operator-engine" | quote }}
+        - name: maxJobDuration
+          value: {{ .Values.maxJobDuration | default "900" | quote }}
+        - name: priceMinute
+          value: {{ .Values.priceMinute | default "0.01" | quote }}
+        - name: IPFS_OUTPUT
+          value: http://{{ .Release.Name }}-ipfs.{{ .Release.Namespace }}:5001
+        - name: IPFS_OUTPUT_PREFIX
+          value: {{ .Values.ipfsOutputPrefix | default "https://ipfs.local/ipfs/" | quote }}
+        - name: IPFS_ADMINLOGS
+          value: http://{{ .Release.Name }}-ipfs.{{ .Release.Namespace }}:5001
+        - name: IPFS_ADMINLOGS_PREFIX
+          value: {{ .Values.ipfsAdminLogsPrefix | default "https://ipfs.local/ipfs/" | quote }}
+        - name: IPFS_EXPIRY_TIME
+          value: "3600"
+        - name: LOG_LEVEL
+          value: DEBUG
+        - name: OPERATOR_PRIVATE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-keys
+              key: privateOperator
+        - name: POD_CONFIGURATION_CONTAINER
+          value: {{ .Values.confContainer | default "oceanprotocol/pod-configuration:v4main" | quote }}
+        - name: POD_PUBLISH_CONTAINER
+          value: {{ .Values.pubContainer | default "oceanprotocol/pod-publishing:v4main" | quote }}
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-postgres
+              key: POSTGRES_DB
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-postgres
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-postgres
+              key: POSTGRES_PASSWORD
+        - name: POSTGRES_HOST
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-postgres
+              key: POSTGRES_HOST
+        - name: POSTGRES_PORT
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-postgres
+              key: POSTGRES_PORT
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccountName: {{ .Release.Name }}-operator-engine
+      terminationGracePeriodSeconds: 30

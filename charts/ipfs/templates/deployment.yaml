@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: {{ .Release.Name }}-ipfs
+  name: {{ .Release.Name }}-ipfs
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.replicaCount | default 1 }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-ipfs
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-ipfs
+    spec:
+      containers:
+        - name: {{ .Release.Name }}-ipfs
+          image: {{ .Values.image.repository | default "ipfs/go-ipfs" }}:{{ .Values.image.tag | default "latest" }}{{ if .Values.image.digest }}@{{ .Values.image.digest }}{{ end }}
+          imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" | quote }}
+          ports:
+            - containerPort: 5001
+              protocol: TCP
+            - containerPort: 8080
+              protocol: TCP
+          volumeMounts:
+            - name: ipfs-data
+              mountPath: /data/ipfs
+      restartPolicy: Always
+      volumes:
+        - name: ipfs-data
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-ipfs
