@@ -114,7 +114,7 @@ ipfs:
   ingress:
     annotations:
       cert-manager.io/cluster-issuer: letsencrypt-prod
-    host: "ipfs.ocean.arlabdevelopments.com"
+    host: "ipfs.domain"
     tls: true
     secretName: ipfs-tls
 
@@ -123,27 +123,20 @@ postgres:
     classname: "ionos-enterprise-ssd"
 
 provider:
-  image:
-    tag: "v2.1.3"
-  ipfsGateway: "https://ipfs.ocean.arlabdevelopments.com"
+  ipfsGateway: "https://ipfs.domain"
   ingress:
     annotations:
       cert-manager.io/cluster-issuer: letsencrypt-prod
-    host: "provider.ocean.arlabdevelopments.com"
+    host: "provider.domain"
     tls: true
     secretName: provider-tls
 
 operator-engine:
-  image:
-    repository: "rogargon/operator-engine"
-    tag: "gke-gpu"
   description: "ArsysLab Data Room"
   storageClassname: "ionos-enterprise-hdd"
-  confContainer: "rogargon/pod-configuration:timeout"
   priceMinute: "0"
-  ipfsOutputPrefix: ""
-  ipfsAdminLogsPrefix: ""
-  operatorPrivateKey: ""
+  ipfsOutputPrefix: "https://ipfs.domain/ipfs/"
+  ipfsAdminLogsPrefix: "https://ipfs.domain/ipfs/"
 
 ```
 
@@ -163,16 +156,79 @@ Thank you for installing oceanprotocol-provider.
 
 The published services for arsys-c2d are:
 
-* IPFS: https://ipfs.ocean.arlabdevelopments.com/
-* Provider: https://provider.ocean.arlabdevelopments.com/
+* IPFS: https://ipfs.domain/
+* Provider: https://provider.domain/
 
-Now wait until everything is `Running` to initialise the PostgreSQL database with the following command:
+If it is a new install, and not an upgrade, wait until everything is `Running`
+to initialise the PostgreSQL database with the following command:
 
-    $ kubectl run --namespace dataspace --attach --rm --restart=Never \
-        --image curlimages/curl pgsqlinit -- \
-        curl -X POST -H "accept: application/json" \
-            -H "Admin: postgresadmin" \
-            "http://arsys-c2d-operator-api.dataspace:8050/api/v1/operator/pgsqlinit" 
+$ kubectl run --namespace dataspace --attach --rm --restart=Never \
+  --image curlimages/curl pgsqlinit -- \
+  curl -X POST -H "accept: application/json" \
+    -H "Admin: postgresadmin" \
+    "http://arsys-c2d-operator-api.dataspace:8050/api/v1/operator/pgsqlinit"
 
-And then you can list the computational environments available using this URL: https://provider.ocean.arlabdevelopments.com/api/services/computeEnvironments
+Once DB initialization it's done, then you can list the computational 
+environments available using this URL:
+  https://provider.domain/api/services/computeEnvironments
+```
+
+## Services
+
+For a normal working provider we have the following resources created on kubernetes:
+
+```
+$ kubectl get --namespace dataspace --output wide all,jobs,persistentvolumeclaims,persistentvolumes,ingresses,secrets,configmaps,certificates
+NAME                                            READY   STATUS    RESTARTS   AGE     IP              NODE                       NOMINATED NODE   READINESS GATES
+pod/arsys-c2d-ipfs-84d4956dd9-gxwwf             1/1     Running   0          7m      10.211.46.218   oceanprotocol-dbpc6c4vhq   <none>           <none>
+pod/arsys-c2d-operator-api-64cf4fdd9f-97kv9     1/1     Running   0          7m      10.211.46.217   oceanprotocol-dbpc6c4vhq   <none>           <none>
+pod/arsys-c2d-operator-engine-cb45cf98c-6m7bg   1/1     Running   0          7m      10.211.46.230   oceanprotocol-dbpc6c4vhq   <none>           <none>
+pod/arsys-c2d-postgres-7f6f9ddc4b-cqvzm         1/1     Running   0          7m      10.211.46.219   oceanprotocol-dbpc6c4vhq   <none>           <none>
+pod/arsys-c2d-provider-7b4db6567d-w64wv         1/1     Running   0          7m      10.222.91.215   oceanprotocol-sj5zd352ss   <none>           <none>
+
+NAME                             TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)             AGE   SELECTOR
+service/arsys-c2d-ipfs           ClusterIP   10.233.47.5     <none>        5001/TCP,8080/TCP   7m    app=arsys-c2d-ipfs
+service/arsys-c2d-operator-api   ClusterIP   10.233.10.28    <none>        8050/TCP            7m    app=arsys-c2d-operator-api
+service/arsys-c2d-postgres       ClusterIP   10.233.30.179   <none>        5432/TCP            7m    app=arsys-c2d-postgres
+service/arsys-c2d-provider       ClusterIP   10.233.42.212   <none>        8030/TCP            7m    app=arsys-c2d-provider
+
+NAME                                        READY   UP-TO-DATE   AVAILABLE   AGE   CONTAINERS                  IMAGES                                  SELECTOR
+deployment.apps/arsys-c2d-ipfs              1/1     1            1           7m    arsys-c2d-ipfs              ipfs/go-ipfs:latest                     app=arsys-c2d-ipfs
+deployment.apps/arsys-c2d-operator-api      1/1     1            1           7m    arsys-c2d-operator-api      oceanprotocol/operator-service:v4main   app=arsys-c2d-operator-api
+deployment.apps/arsys-c2d-operator-engine   1/1     1            1           7m    arsys-c2d-operator-engine   rogargon/operator-engine:gke-gpu        app=arsys-c2d-operator-engine
+deployment.apps/arsys-c2d-postgres          1/1     1            1           7m    arsys-c2d-postgres          postgres:10.4                           app=arsys-c2d-postgres
+deployment.apps/arsys-c2d-provider          1/1     1            1           7m    provider                    oceanprotocol/provider-py:v2.1.3        app=arsys-c2d-provider
+
+NAME                                                  DESIRED   CURRENT   READY   AGE     CONTAINERS                  IMAGES                                  SELECTOR
+replicaset.apps/arsys-c2d-ipfs-84d4956dd9             1         1         1       7m      arsys-c2d-ipfs              ipfs/go-ipfs:latest                     app=arsys-c2d-ipfs,pod-template-hash=84d4956dd9
+replicaset.apps/arsys-c2d-operator-api-64cf4fdd9f     1         1         1       7m      arsys-c2d-operator-api      oceanprotocol/operator-service:v4main   app=arsys-c2d-operator-api,pod-template-hash=64cf4fdd9f
+replicaset.apps/arsys-c2d-operator-engine-cb45cf98c   1         1         1       7m      arsys-c2d-operator-engine   rogargon/operator-engine:gke-gpu        app=arsys-c2d-operator-engine,pod-template-hash=cb45cf98c
+replicaset.apps/arsys-c2d-postgres-7f6f9ddc4b         1         1         1       7m      arsys-c2d-postgres          postgres:10.4                           app=arsys-c2d-postgres,pod-template-hash=7f6f9ddc4b
+replicaset.apps/arsys-c2d-provider-7b4db6567d         1         1         1       7m      provider                    oceanprotocol/provider-py:v2.1.3        app=arsys-c2d-provider,pod-template-hash=7b4db6567d
+
+NAME                                       STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS           VOLUMEATTRIBUTESCLASS   AGE   VOLUMEMODE
+persistentvolumeclaim/arsys-c2d-ipfs       Bound    pvc-ef15dc6c-3598-424d-a248-541be3b2056e   1Gi        RWO            ionos-enterprise-hdd   <unset>                 7m    Filesystem
+persistentvolumeclaim/arsys-c2d-postgres   Bound    pvc-e16f6af6-71fc-4cb9-93c6-d9b2ea8dd1a4   1Gi        RWO            ionos-enterprise-ssd   <unset>                 7m    Filesystem
+
+NAME                                                        CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                          STORAGECLASS           VOLUMEATTRIBUTESCLASS   REASON   AGE   VOLUMEMODE
+persistentvolume/pvc-e16f6af6-71fc-4cb9-93c6-d9b2ea8dd1a4   1Gi        RWO            Delete           Bound    dataspace/arsys-c2d-postgres   ionos-enterprise-ssd   <unset>                          7m    Filesystem
+persistentvolume/pvc-ef15dc6c-3598-424d-a248-541be3b2056e   1Gi        RWO            Delete           Bound    dataspace/arsys-c2d-ipfs       ionos-enterprise-hdd   <unset>                          7m    Filesystem
+
+NAME                                           CLASS   HOSTS                                  ADDRESS        PORTS     AGE
+ingress.networking.k8s.io/arsys-c2d-ipfs       nginx   ipfs.domain       5.250.184.10   80, 443   7m
+ingress.networking.k8s.io/arsys-c2d-provider   nginx   provider.domain   5.250.184.10   80, 443   7m
+
+NAME                                     TYPE                 DATA   AGE
+secret/arsys-c2d-keys                    Opaque               4      7m
+secret/arsys-c2d-postgres                Opaque               6      7m
+secret/ipfs-tls                          kubernetes.io/tls    2      7m
+secret/provider-tls                      kubernetes.io/tls    2      7m
+secret/sh.helm.release.v1.arsys-c2d.v1   helm.sh/release.v1   1      7m
+
+NAME                         DATA   AGE
+configmap/kube-root-ca.crt   1      21d
+
+NAME                                       READY   SECRET         ISSUER             STATUS                                          AGE
+certificate.cert-manager.io/ipfs-tls       True    ipfs-tls       letsencrypt-prod   Certificate is up to date and has not expired   7m
+certificate.cert-manager.io/provider-tls   True    provider-tls   letsencrypt-prod   Certificate is up to date and has not expired   7m
 ```
