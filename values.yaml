@@ -81,9 +81,12 @@ operator-engine:
   storageClassname: ""
   maxJobDuration: ""
   priceMinute: ""
+  ipfsOutput: ""
   ipfsOutputPrefix: ""
+  ipfsAdminLogs: ""
   ipfsAdminLogsPrefix: ""
-  operatorPrivateKey: ""
+  ipfsExpiryTime: ""
+  ipfsLogLevel: ""
   confContainer: ""
   pubContainer: ""
 

@@ -46,26 +46,26 @@ spec:
         - name: priceMinute
           value: {{ .Values.priceMinute | default "0.01" | quote }}
         - name: IPFS_OUTPUT
-          value: http://{{ .Release.Name }}-ipfs.{{ .Release.Namespace }}:5001
+          value: {{ .Values.ipfsOutput | default ( printf "http://%s-ipfs.%s:5001" .Release.Name .Release.Namespace ) | quote }}
         - name: IPFS_OUTPUT_PREFIX
-          value: {{ .Values.ipfsOutputPrefix | default "https://ipfs.local/ipfs/" | quote }}
+          value: {{ .Values.ipfsOutputPrefix | default ( printf "http://%s-ipfs.%s/ipfs" .Release.Name .Release.Namespace ) | quote }}
         - name: IPFS_ADMINLOGS
-          value: http://{{ .Release.Name }}-ipfs.{{ .Release.Namespace }}:5001
+          value: {{ .Values.ipfsAdminLogs | default ( printf "http://%s-ipfs.%s:5001" .Release.Name .Release.Namespace ) | quote }}
         - name: IPFS_ADMINLOGS_PREFIX
-          value: {{ .Values.ipfsAdminLogsPrefix | default "https://ipfs.local/ipfs/" | quote }}
+          value: {{ .Values.ipfsAdminLogsPrefix | default ( printf "http://%s-ipfs.%s/ipfs" .Release.Name .Release.Namespace ) | quote }}
         - name: IPFS_EXPIRY_TIME
-          value: "3600"
+          value: {{ .Values.ipfsExpiryTime | default "3600" | quote }}
         - name: LOG_LEVEL
-          value: DEBUG
+          value: {{ .Values.ipfsLogLevel | default "DEBUG" }}
+        - name: POD_CONFIGURATION_CONTAINER
+          value: {{ .Values.confContainer | default "oceanprotocol/pod-configuration:v4main" | quote }}
+        - name: POD_PUBLISH_CONTAINER
+          value: {{ .Values.pubContainer | default "oceanprotocol/pod-publishing:v4main" | quote }}
         - name: OPERATOR_PRIVATE_KEY
           valueFrom:
             secretKeyRef:
               name: {{ .Release.Name }}-keys
               key: privateOperator
-        - name: POD_CONFIGURATION_CONTAINER
-          value: {{ .Values.confContainer | default "oceanprotocol/pod-configuration:v4main" | quote }}
-        - name: POD_PUBLISH_CONTAINER
-          value: {{ .Values.pubContainer | default "oceanprotocol/pod-publishing:v4main" | quote }}
         - name: POSTGRES_DB
           valueFrom:
             secretKeyRef:
