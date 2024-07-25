@@ -42,7 +42,7 @@ Official Ocean Protocol documentation of [Compute to data infrastructure](https:
 
 ## Directory structure
 
-```
+```plain
 oceanprotocol-provider
 ├── charts
 │   ├── ipfs
@@ -93,9 +93,20 @@ oceanprotocol-provider
 
 ## Install
 
-Create a values file adapted to your kubernetes cluster configuration:
+### Create a repository
+
+Add a new repository with this chart:
+
+```console
+$ helm repo add oceanprotocol-provider https://github.com/arsys-internet/oceanprotocol-provider
 
 ```
+
+### Personalize the deployment
+
+Create a values file adapted to your kubernetes cluster configuration:
+
+```yaml
 # Default values for the deployment of oceanprotocol-provider in Arsys DCD Managed Kubernetes.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
@@ -140,10 +151,12 @@ operator-engine:
 
 ```
 
-And after creating the file execute this command:
+### Deploy the provider
 
-```
-druiz@LLL-178708:~/git$ helm upgrade --install --namespace dataspace --create-namespace --values ./oceanprotocol-arsys.yaml arsys-c2d oceanprotocol-provider
+Once the values are adjusted to our needs, install the provider using this command:
+
+```console
+$ helm upgrade --install --namespace dataspace --create-namespace --values ./oceanprotocol-arsys.yaml arsys-c2d oceanprotocol-provider/oceanprotocol-provider
 Release "arsys-c2d" does not exist. Installing it now.
 NAME: arsys-c2d
 LAST DEPLOYED: Fri Jul  5 13:07:23 2024
@@ -172,6 +185,8 @@ Once DB initialization it's done, then you can list the computational
 environments available using this URL:
   https://provider.domain/api/services/computeEnvironments
 ```
+
+After the first deployment ensure to launch de database initialization command shown on the notes of helm.
 
 ## Services
 
