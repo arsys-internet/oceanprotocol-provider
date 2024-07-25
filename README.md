@@ -98,7 +98,7 @@ oceanprotocol-provider
 Add a new repository with this chart:
 
 ```console
-$ helm repo add oceanprotocol-provider https://github.com/arsys-internet/oceanprotocol-provider
+$ helm repo add oceanprotocol-provider https://arsys-internet.github.io/oceanprotocol-provider/
 
 ```
 
