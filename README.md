@@ -111,10 +111,18 @@ Create a values file adapted to your kubernetes cluster configuration:
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-keys:
+networks:
+  networksURL: |
+    { "100": "https://rpc.genx.minimal-gaia-x.eu",
+      "32456": "https://rpc.dev.pontus-x.eu",
+      "32457": "https://rpc.test.pontus-x.eu" }
   privateProviders: |
-    { "100": "0x0..." }
+    { "100": "0x0...",
+      "32456": "0x0...",
+      "32457": "0x0..." }
   publicProviders: |
+    [ "0x0...",
+    [ "0x0...",
     [ "0x0..." ]
   privateOperator: "0x0..."
   publicOperator: "0x0..."
@@ -125,7 +133,7 @@ ipfs:
   ingress:
     annotations:
       cert-manager.io/cluster-issuer: letsencrypt-prod
-    host: "ipfs.domain"
+    host: "ipfs.ocean.arlabdevelopments.com"
     tls: true
     secretName: ipfs-tls
 
@@ -134,21 +142,28 @@ postgres:
     classname: "ionos-enterprise-ssd"
 
 provider:
-  ipfsGateway: "https://ipfs.domain"
+  image:
+    tag: "v2.1.3"
+  ipfsGateway: "https://ipfs.ocean.arlabdevelopments.com"
+  providerFeeToken: "0xdd0a0278f6BAF167999ccd8Aa6C11A9e2fA37F0a"
+  aquariusURL: "https://aquarius.pontus-x.eu/"
   ingress:
     annotations:
       cert-manager.io/cluster-issuer: letsencrypt-prod
-    host: "provider.domain"
+    host: "provider.ocean.arlabdevelopments.com"
     tls: true
     secretName: provider-tls
 
 operator-engine:
+  image:
+    repository: "rogargon/operator-engine"
+    tag: "gke-gpu"
   description: "ArsysLab Data Room"
   storageClassname: "ionos-enterprise-hdd"
   priceMinute: "0"
-  ipfsOutputPrefix: "https://ipfs.domain/ipfs/"
-  ipfsAdminLogsPrefix: "https://ipfs.domain/ipfs/"
-
+  ipfsOutputPrefix: "https://ipfs.ocean.arlabdevelopments.com/ipfs/"
+  ipfsAdminLogsPrefix: "https://ipfs.ocean.arlabdevelopments.com/ipfs/"
+  podConfContainer: "rogargon/pod-configuration:timeout"
 ```
 
 ### Deploy the provider

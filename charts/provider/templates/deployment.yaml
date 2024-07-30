@@ -27,39 +27,41 @@ spec:
           image: {{ .Values.image.repository | default "oceanprotocol/provider-py" }}:{{ .Values.image.tag | default "latest" }}{{ if .Values.image.digest }}@{{ .Values.image.digest }}{{ end }}
           imagePullPolicy: {{ .Values.image.pullPolicy | default "Always" | quote }}
           env:
+            - name: LOG_LEVEL
+              value: DEBUG
             - name: ARTIFACTS_PATH
               value: /ocean-provider/artifacts
             - name: NETWORK_URL
-              value: |
-                {"100":"https://rpc.genx.minimal-gaia-x.eu"}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-networks
+                  key: networksURL
             - name: PROVIDER_PRIVATE_KEY
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Release.Name }}-keys
+                  name: {{ .Release.Name }}-networks
                   key: privateProviders
             - name: UNIVERSAL_PRIVATE_KEY
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Release.Name }}-keys
+                  name: {{ .Release.Name }}-networks
                   key: privateOperator
-            - name: LOG_LEVEL
-              value: DEBUG
             - name: OCEAN_PROVIDER_URL
               value: "http://0.0.0.0:8030"
             - name: OCEAN_PROVIDER_WORKERS
               value: "4"
-            - name: IPFS_GATEWAY
-              value: {{ .Values.ipfsGateway | default ( printf "http://%s-ipfs.%s" .Release.Name .Release.Namespace ) | quote }}
             - name: OCEAN_PROVIDER_TIMEOUT
               value: "9000"
             - name: OPERATOR_SERVICE_URL
               value: {{ .Values.operatorAPI | default ( printf "http://%s-operator-api.%s:8050" .Release.Name .Release.Namespace ) | quote }}
-            - name: AQUARIUS_URL
-              value: "https://aquarius510.v4.delta-dao.com"
+            - name: IPFS_GATEWAY
+              value: {{ .Values.ipfsGateway | default ( printf "http://%s-ipfs.%s" .Release.Name .Release.Namespace ) | quote }}
             - name: REQUEST_TIMEOUT
               value: "10"
+            - name: AQUARIUS_URL
+              value: {{ .Values.aquariusURL | required "The aquarius URL it's a mandatory value" | quote }}
             - name: PROVIDER_FEE_TOKEN
-              value: {{ .Values.token | default "0x0995527d3473b3a98c471f1ed8787acd77fbf009" | quote }}
+              value: {{ .Values.providerFeeToken | required "The provider fee token it's a mandatory value" | quote }}
           ports:
             - containerPort: 8030
               protocol: TCP
