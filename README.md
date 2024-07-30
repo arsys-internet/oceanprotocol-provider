@@ -82,13 +82,14 @@ oceanprotocol-provider
 │       │   └── service.yaml
 │       └── values.yaml
 ├── Chart.yaml
+├── LICENSE
 ├── README.md
 ├── templates
 │   ├── NOTES.txt
 │   └── secrets.yaml
 └── values.yaml
 
-12 directories, 31 files
+12 directories, 32 files
 ```
 
 ## Install
@@ -98,8 +99,13 @@ oceanprotocol-provider
 Add a new repository with this chart:
 
 ```console
-$ helm repo add oceanprotocol-provider https://arsys-internet.github.io/oceanprotocol-provider/
+helm repo add oceanprotocol-provider https://arsys-internet.github.io/oceanprotocol-provider/
+```
 
+If everything works fine you should get something like this:
+
+```console
+"oceanprotocol-provider" has been added to your repositories
 ```
 
 ### Personalize the deployment
@@ -171,7 +177,12 @@ operator-engine:
 Once the values are adjusted to our needs, install the provider using this command:
 
 ```console
-$ helm upgrade --install --namespace dataspace --create-namespace --values ./oceanprotocol-arsys.yaml arsys-c2d oceanprotocol-provider/oceanprotocol-provider
+helm upgrade --install --namespace dataspace --create-namespace --values ./oceanprotocol-arsys.yaml arsys-c2d oceanprotocol-provider/oceanprotocol-provider
+```
+
+If everything works fine you should get something like this:
+
+```plain
 Release "arsys-c2d" does not exist. Installing it now.
 NAME: arsys-c2d
 LAST DEPLOYED: Fri Jul  5 13:07:23 2024
