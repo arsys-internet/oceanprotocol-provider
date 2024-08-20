@@ -118,7 +118,7 @@ Create a values file adapted to your kubernetes cluster configuration:
 # Declare variables to be passed into your templates.
 
 networks:
-  networksURL: |
+  URL: |
     { "100": "https://rpc.genx.minimal-gaia-x.eu",
       "32456": "https://rpc.dev.pontus-x.eu",
       "32457": "https://rpc.test.pontus-x.eu" }

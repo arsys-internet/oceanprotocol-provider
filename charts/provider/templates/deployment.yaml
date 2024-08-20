@@ -35,7 +35,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ .Release.Name }}-networks
-                  key: networksURL
+                  key: URL
             - name: PROVIDER_PRIVATE_KEY
               valueFrom:
                 secretKeyRef:
