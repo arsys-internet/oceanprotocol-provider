@@ -46,6 +46,11 @@ spec:
                 secretKeyRef:
                   name: {{ .Release.Name }}-networks
                   key: privateOperator
+            - name: AUTHORIZED_DECRYPTERS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-networks
+                  key: authorizedDecrypters
             - name: OCEAN_PROVIDER_URL
               value: "http://0.0.0.0:8030"
             - name: OCEAN_PROVIDER_WORKERS

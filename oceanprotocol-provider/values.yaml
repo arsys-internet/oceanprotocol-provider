@@ -8,6 +8,7 @@ networks:
   privateProviders:
   publicOperator:
   privateOperator:
+  authorizedDecrypters:
 
 ipfs:
   replicaCount:
