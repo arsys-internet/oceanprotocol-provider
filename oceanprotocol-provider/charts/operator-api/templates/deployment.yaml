@@ -42,12 +42,12 @@ spec:
         - name: ALLOWED_PROVIDERS
           valueFrom:
             secretKeyRef:
-              name: {{ .Release.Name }}-keys
+              name: {{ .Release.Name }}-networks
               key: publicProviders
         - name: OPERATOR_ADDRESS
           valueFrom:
             secretKeyRef:
-              name: {{ .Release.Name }}-keys
+              name: {{ .Release.Name }}-networks
               key: publicOperator
         - name: DEFAULT_NAMESPACE
           value: {{ .Release.Namespace | quote }}
