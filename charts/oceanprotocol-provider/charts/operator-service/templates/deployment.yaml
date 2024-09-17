@@ -2,16 +2,14 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: {{ .Release.Name }}-operator-api
-  name: {{ .Release.Name }}-operator-api
+    app: {{ .Release.Name }}-operator-service
+  name: {{ .Release.Name }}-operator-service
   namespace: {{ .Release.Namespace }}
 spec:
-  progressDeadlineSeconds: 600
   replicas: {{ .Values.replicaCount | default 1 }}
-  revisionHistoryLimit: 10
   selector:
     matchLabels:
-      app: {{ .Release.Name }}-operator-api
+      app: {{ .Release.Name }}-operator-service
   strategy:
     rollingUpdate:
       maxSurge: 25%
@@ -20,39 +18,36 @@ spec:
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}-operator-api
+        app: {{ .Release.Name }}-operator-service
     spec:
       containers:
-      - name: {{ .Release.Name }}-operator-api
+      - name: {{ .Release.Name }}-operator-service
         image: {{ .Values.image.repository | default "oceanprotocol/operator-service" }}:{{ .Values.image.tag | default "v4main" }}{{ if .Values.image.digest }}@{{ .Values.image.digest }}{{ end }}
         imagePullPolicy: {{ .Values.image.pullPolicy | default "Always" | quote }}
         env:
-        - name: requests_cpu
-          value: "2"
-        - name: requests_memory
-          value: "4Gi"
-        - name: limits_cpu
-          value: "4"
-        - name: limits_memory
-          value: "16Gi"
         - name: ALGO_POD_TIMEOUT
           value: "3600"
+        - name: STORAGE_EXPIRY
+          value: "0"
         - name: SIGNATURE_REQUIRED
           value: "0"
-        - name: ALLOWED_PROVIDERS
-          valueFrom:
-            secretKeyRef:
-              name: {{ .Release.Name }}-networks
-              key: publicProviders
+        - name: DEFAULT_NAMESPACE
+          value: {{ .Release.Namespace | quote }}
         - name: OPERATOR_ADDRESS
           valueFrom:
             secretKeyRef:
               name: {{ .Release.Name }}-networks
               key: publicOperator
-        - name: DEFAULT_NAMESPACE
-          value: {{ .Release.Namespace | quote }}
+        - name: ALLOWED_PROVIDERS
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-networks
+              key: allowedProviders
         - name: ALLOWED_ADMINS
-          value: '["postgresadmin"]'
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-networks
+              key: allowedAdmins
         - name: POSTGRES_DB
           valueFrom:
             secretKeyRef:

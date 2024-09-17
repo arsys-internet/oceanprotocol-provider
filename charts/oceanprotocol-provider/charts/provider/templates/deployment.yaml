@@ -6,9 +6,7 @@ metadata:
   labels:
     app: {{ .Release.Name }}-provider
 spec:
-  progressDeadlineSeconds: 2147483647
   replicas: {{ .Values.replicaCount | default 1 }}
-  revisionHistoryLimit: 2147483647
   selector:
     matchLabels:
       app: {{ .Release.Name }}-provider
@@ -23,19 +21,24 @@ spec:
         app: {{ .Release.Name }}-provider
     spec:
       containers:
-        - name: provider
+        - name: {{ .Release.Name }}-provider
           image: {{ .Values.image.repository | default "oceanprotocol/provider-py" }}:{{ .Values.image.tag | default "latest" }}{{ if .Values.image.digest }}@{{ .Values.image.digest }}{{ end }}
           imagePullPolicy: {{ .Values.image.pullPolicy | default "Always" | quote }}
           env:
             - name: LOG_LEVEL
               value: DEBUG
             - name: ARTIFACTS_PATH
-              value: /ocean-provider/artifacts
+              value: "/ocean-provider/artifacts"
             - name: NETWORK_URL
               valueFrom:
                 secretKeyRef:
                   name: {{ .Release.Name }}-networks
                   key: URL
+            - name: PROVIDER_ADDRESS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-networks
+                  key: allowedProviders
             - name: PROVIDER_PRIVATE_KEY
               valueFrom:
                 secretKeyRef:
@@ -54,11 +57,11 @@ spec:
             - name: OCEAN_PROVIDER_URL
               value: "http://0.0.0.0:8030"
             - name: OCEAN_PROVIDER_WORKERS
-              value: "4"
+              value: "1"
             - name: OCEAN_PROVIDER_TIMEOUT
               value: "9000"
             - name: OPERATOR_SERVICE_URL
-              value: {{ .Values.operatorAPI | default ( printf "http://%s-operator-api.%s:8050" .Release.Name .Release.Namespace ) | quote }}
+              value: {{ .Values.operatorAPI | default ( printf "http://%s-operator-service.%s:8050" .Release.Name .Release.Namespace ) | quote }}
             - name: IPFS_GATEWAY
               value: {{ .Values.ipfsGateway | default ( printf "http://%s-ipfs.%s" .Release.Name .Release.Namespace ) | quote }}
             - name: REQUEST_TIMEOUT

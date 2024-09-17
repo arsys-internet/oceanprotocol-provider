@@ -4,13 +4,15 @@
 
 networks:
   URL:
-  publicProviders:
+  allowedProviders:
   privateProviders:
   publicOperator:
   privateOperator:
+  allowedAdmins:
   authorizedDecrypters:
 
 ipfs:
+  enabled: true
   replicaCount:
   image:
     repository: ""
@@ -30,6 +32,7 @@ ipfs:
     secretName: ""
 
 postgres:
+  enabled: true
   replicaCount:
   image:
     repository: ""
@@ -49,26 +52,8 @@ postgres:
     access: ""
     size: ""
 
-provider:
-  replicaCount:
-  image:
-    repository: ""
-    tag: ""
-    digest: ""
-    pullPolicy: ""
-  ipfsGateway: ""
-  operatorAPI: ""
-  providerFeeToken: ""
-  aquariusURL: ""
-  ingress:
-    enabled: true
-    annotations: {}
-    tls: false
-    classname: ""
-    host: ""
-    secretName: ""
-
 operator-engine:
+  enabled: true
   replicaCount:
   image:
     repository: ""
@@ -93,10 +78,31 @@ operator-engine:
   confContainer: ""
   pubContainer: ""
 
-operator-api:
+operator-service:
+  enabled: true
   replicaCount:
   image:
     repository: ""
     tag: ""
     digest: ""
     pullPolicy: ""
+
+provider:
+  enabled: true
+  replicaCount:
+  image:
+    repository: ""
+    tag: ""
+    digest: ""
+    pullPolicy: ""
+  ipfsGateway: ""
+  operatorAPI: ""
+  providerFeeToken: ""
+  aquariusURL: ""
+  ingress:
+    enabled: true
+    annotations: {}
+    tls: false
+    classname: ""
+    host: ""
+    secretName: ""

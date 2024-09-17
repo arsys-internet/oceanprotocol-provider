@@ -6,9 +6,7 @@ metadata:
   name: {{ .Release.Name }}-operator-engine
   namespace: {{ .Release.Namespace }}
 spec:
-  progressDeadlineSeconds: 600
   replicas: {{ .Values.replicaCount | default 1 }}
-  revisionHistoryLimit: 10
   selector:
     matchLabels:
       app: {{ .Release.Name }}-operator-engine
@@ -31,20 +29,28 @@ spec:
           value: {{ .Values.description | default "My Data Room" | quote }}
         - name: maxJobs
           value: {{ .Values.maxJobs | default "1" | quote }}
-        - name: nCPU
-          value: {{ .Values.nCPU | default "2" | quote }}
-        - name: ramGB
-          value: {{ .Values.ramGB | default "4" | quote }}
-        - name: nGPU
-          value: {{ .Values.nGPU | default "0" | quote }}
-        - name: diskGB
-          value: {{ .Values.diskGB | default "1" | quote }}
-        - name: STORAGE_CLASS
-          value: {{ .Values.storageClassname | required "It's required to specify an storageClassname to use the operator-engine" | quote }}
         - name: maxJobDuration
           value: {{ .Values.maxJobDuration | default "900" | quote }}
         - name: priceMinute
           value: {{ .Values.priceMinute | default "0.01" | quote }}
+        - name: nCPU
+          value: {{ .Values.nCPU | default "2" | quote }}
+        - name: cpuType
+          value: {{ .Values.nCPU | default "x86_64" | quote }}
+        - name: ramGB
+          value: {{ .Values.ramGB | default "4" | quote }}
+        - name: nGPU
+          value: {{ .Values.nGPU | default "0" | quote }}
+        - name: gpuRAM
+          value: {{ .Values.gpuRAM | default "0" | quote }}
+        - name: gpuType
+          value: {{ .Values.gpuRAM | default "none" | quote }}
+        - name: diskGB
+          value: {{ .Values.diskGB | default "1" | quote }}
+        - name: STORAGE_CLASS
+          value: {{ .Values.storageClassname | required "It's required to specify an storageClassname to use the operator-engine" | quote }}
+        - name: STORAGE_EXPIRY
+          value: "0"
         - name: IPFS_OUTPUT
           value: {{ .Values.ipfsOutput | default ( printf "http://%s-ipfs.%s:5001" .Release.Name .Release.Namespace ) | quote }}
         - name: IPFS_OUTPUT_PREFIX

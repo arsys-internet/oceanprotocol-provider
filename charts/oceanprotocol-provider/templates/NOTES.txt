@@ -8,12 +8,12 @@ The published services for {{ .Release.Name }} are:
 If it is a new install, and not an upgrade, wait until everything is `Running`
 to initialise the PostgreSQL database with the following command:
 
-$ kubectl run --namespace dataspace --attach --rm --restart=Never \
+$ kubectl run --namespace {{ .Release.Namespace }} --attach --rm --restart=Never \
   --image curlimages/curl pgsqlinit -- \
   curl -X POST -H "accept: application/json" \
-    -H "Admin: postgresadmin" \
-    "http://arsys-c2d-operator-api.dataspace:8050/api/v1/operator/pgsqlinit"
+    -H "Admin: {{ .Values.networks.allowedAdmins | default "myAdminSecret" }}" \
+    "http://{{ .Release.Name }}-operator-service.{{ .Release.Namespace }}:8050/api/v1/operator/pgsqlinit"
 
 Once DB initialization it's done, then you can list the computational 
 environments available using this URL:
-  https://provider.domain/api/services/computeEnvironments
+  http{{ if $.Values.provider.ingress.tls }}s{{ end }}://{{ .Values.provider.ingress.host }}/api/services/computeEnvironments
